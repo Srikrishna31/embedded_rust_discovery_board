@@ -1,2 +1,2 @@
 [workspace]
-members = ["setup"]
+members = ["setup", "led_roulette"]
