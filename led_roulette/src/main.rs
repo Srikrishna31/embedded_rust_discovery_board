@@ -3,13 +3,13 @@
 #![no_std]
 
 use cortex_m_rt::entry;
-use rtt_target::{rtt_init_print, rprintln};
-use panic_rtt_target as _;
 use microbit::{
     board::Board,
     display::blocking::Display,
     hal::{prelude::*, Timer},
 };
+use panic_rtt_target as _;
+use rtt_target::{rtt_init_print};
 
 #[entry]
 fn main() -> ! {
@@ -37,7 +37,7 @@ fn main() -> ! {
             j += 1;
         } else if j == 4 && i < 4 {
             i += 1;
-        } else if i ==4 && j > 0 {
+        } else if i == 4 && j > 0 {
             j -= 1;
         } else if j == 0 && i > 0 {
             i -= 1;
