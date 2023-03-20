@@ -52,7 +52,10 @@ fn main() -> ! {
 
     // nb is a "Minimal and reusable non-blocking I/O layer. It allows us to write code that can
     // conduct hardware operations in the background while we go and do other work (non-blocking).
-    nb::block!(serial.write(b'X')).unwrap();
+    let string = "The quick brown fox jumps over the lazy dog".bytes();
+    for b in string {
+        nb::block!(serial.write(b)).unwrap();
+    }
     nb::block!(serial.flush()).unwrap();
 
     loop {}
