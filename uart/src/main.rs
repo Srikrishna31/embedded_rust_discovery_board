@@ -4,6 +4,7 @@
 use cortex_m_rt::entry;
 use rtt_target::rtt_init_print;
 use panic_rtt_target as _;
+use core::fmt::Write;
 
 #[cfg(feature = "v1")]
 use microbit::{
@@ -52,10 +53,7 @@ fn main() -> ! {
 
     // nb is a "Minimal and reusable non-blocking I/O layer. It allows us to write code that can
     // conduct hardware operations in the background while we go and do other work (non-blocking).
-    let string = "The quick brown fox jumps over the lazy dog".bytes();
-    for b in string {
-        nb::block!(serial.write(b)).unwrap();
-    }
+    write!(serial, "The quick brown fox jumps over the lazy dog.\r\n").unwrap();
     nb::block!(serial.flush()).unwrap();
 
     loop {}
