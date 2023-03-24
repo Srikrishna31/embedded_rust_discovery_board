@@ -20,6 +20,8 @@ use microbit::{
     pac::twim0::frequency::FREQUENCY_A,
 };
 
+use lsm303agr::{AccelOutputDataRate, Lsm303agr, mode, interface::I2cInterface};
+
 const ACCELEROMETER_ADDR: u8 = 0b0011001;
 const MAGNETOMETER_ADDR: u8 = 0b0011110;
 
@@ -38,15 +40,16 @@ fn main() -> ! {
     #[cfg(feature = "v2")]
     let mut i2c = {twim::Twim::new(board.TWIM0, board.i2c_internal.into(), FREQUENCY_A::K100)};
 
-    let mut acc = [0];
-    let mut mag = [0];
+    // Code from documentation
+    let mut sensor = Lsm303agr::new_with_i2c(i2c);
+    sensor.init().unwrap();
+    sensor.set_accel_odr(AccelOutputDataRate::Hz50).unwrap();
 
-    // First write the address + register onto the bus, then read the chip's responses
-    i2c.write_read(ACCELEROMETER_ADDR, &[ACCELEROMETER_ID_REG], &mut acc).unwrap();
-    i2c.write_read(MAGNETOMETER_ADDR, &[MAGNETOMETER_ID_REG], &mut mag).unwrap();
-
-    rprintln!("The accelerometer chip's id is: {:#b}", acc[0]);
-    rprintln!("The magnetometer chip's id is: {:#b}", mag[0]);
-
-    loop {}
+    loop {
+        if sensor.accel_status().unwrap().xyz_new_data {
+            let data = sensor.accel_data().unwrap();
+            // RTT instead of normal print
+            rprintln!("Acceleration: x {} y {} z {}", data.x, data.y, data.z);
+        }
+    }
 }
