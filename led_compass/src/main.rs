@@ -15,7 +15,7 @@ use microbit::{display::blocking::Display, hal::Timer, Board};
 use led::Direction as LedDirection;
 
 use core::f32::consts::PI;
-use libm::atan2f;
+use libm::{atan2f, sqrtf};
 
 #[cfg(feature="v1")]
 use microbit::{hal::twi, pac::twi0::frequency::FREQUENCY_A};
@@ -81,5 +81,9 @@ fn main() -> ! {
         // use the led module to turn the direction into an LED arrow and the led display functions
         // from chapter 5 to display the arrow
         display.show(&mut timer, led::direction_to_led(dir), 100);
+
+        let (x, y, z)  = (data.x as f32, data.y as f32, data.z as f32);
+        let magnitude = sqrtf(x* x + y * y + z * z);
+        rprintln!("{} nT, {} mG", magnitude, magnitude / 100.0);
     }
 }
