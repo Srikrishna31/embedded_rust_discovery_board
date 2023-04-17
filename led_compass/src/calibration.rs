@@ -225,9 +225,9 @@ fn spherify(center: Measurement, data: &[Measurement]) -> Calibration {
         center,
         radius: radius as u32,
         scale: Measurement {
-            x: (1024 * scale_x) as i32,
-            y: (1024 * scale_y) as i32,
-            z: (1024 * scale_z) as i32,
+            x: (1024.0 * scale_x) as i32,
+            y: (1024.0 * scale_y) as i32,
+            z: (1024.0 * scale_z) as i32,
         },
     }
 }

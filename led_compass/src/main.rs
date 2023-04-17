@@ -3,12 +3,16 @@
 #![no_std]
 
 use cortex_m_rt::entry;
+use embedded_hal::Direction;
 use panic_rtt_target as _;
 use rtt_target::{rprintln, rtt_init_print};
 
 mod calibration;
+mod led;
+
 use crate::calibration::{calc_calibration, calibrated_measurement};
 use microbit::{display::blocking::Display, hal::Timer, Board};
+use led::Direction as LedDirection;
 
 #[cfg(feature="v1")]
 use microbit::{hal::twi, pac::twi0::frequency::FREQUENCY_A};
@@ -47,6 +51,17 @@ fn main() -> ! {
         while !sensor.mag_status().unwrap().xyz_new_data {}
         let mut data = sensor.mag_data().unwrap();
         data = calibrated_measurement(&data, &calibraion);
-        rprintln!("x: {}, y: {}, z", data.x, data.y, data.z);
+
+        let dir = match (data.x > 0, data.y > 0) {
+            // Quadrant ???
+            (true, true) => LedDirection::NorthEast,
+            (false, true) => LedDirection::NorthWest,
+            (false, false) => LedDirection::SouthWest,
+            (true, false) => LedDirection::SouthEast,
+        };
+
+        // use the led module to turn the direction into an LED arrow and the led display functions
+        // from chapter 5 to display the arrow
+        display.show(&mut timer, led::direction_to_led(dir), 100);
     }
 }
