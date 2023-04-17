@@ -14,6 +14,9 @@ use crate::calibration::{calc_calibration, calibrated_measurement};
 use microbit::{display::blocking::Display, hal::Timer, Board};
 use led::Direction as LedDirection;
 
+use core::f32::consts::PI;
+use libm::atan2f;
+
 #[cfg(feature="v1")]
 use microbit::{hal::twi, pac::twi0::frequency::FREQUENCY_A};
 
@@ -52,12 +55,27 @@ fn main() -> ! {
         let mut data = sensor.mag_data().unwrap();
         data = calibrated_measurement(&data, &calibraion);
 
-        let dir = match (data.x > 0, data.y > 0) {
-            // Quadrant ???
-            (true, true) => LedDirection::NorthEast,
-            (false, true) => LedDirection::NorthWest,
-            (false, false) => LedDirection::SouthWest,
-            (true, false) => LedDirection::SouthEast,
+        let theta = atan2f(data.y as f32, data.x as f32);
+
+        // Figure out the direction based on theta
+        let dir = if theta < -7. * PI / 8. {
+            LedDirection::West
+        } else if theta < -5. * PI / 8. {
+            LedDirection::SouthWest
+        } else if theta < -3. * PI / 8. {
+            LedDirection::South
+        } else if theta < -PI / 8. {
+            LedDirection::SouthEast
+        } else if theta < PI / 8. {
+            LedDirection::East
+        } else if theta < 3. * PI / 8. {
+            LedDirection::NorthEast
+        } else if theta < 5. * PI / 8. {
+            LedDirection::North
+        } else if theta < 7. * PI / 8. {
+            LedDirection::NorthWest
+        } else {
+            LedDirection::West
         };
 
         // use the led module to turn the direction into an LED arrow and the led display functions
